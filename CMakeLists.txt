@@ -16,15 +16,15 @@ set (
 set (
     SOURCE_ONE_WEEKEND
         src/InOneWeekend/main.cc
-        src/InOneWeekend/camera.h
+        # src/InOneWeekend/camera.h
         src/InOneWeekend/color.h
-        src/InOneWeekend/hittable.h
-        src/InOneWeekend/hittable_list.h
-        src/InOneWeekend/interval.h
-        src/InOneWeekend/material.h
+        # src/InOneWeekend/hittable.h
+        # src/InOneWeekend/hittable_list.h
+        # src/InOneWeekend/interval.h
+        # src/InOneWeekend/material.h
         src/InOneWeekend/ray.h
-        src/InOneWeekend/rtweekend.h
-        src/InOneWeekend/sphere.h
+        # src/InOneWeekend/rtweekend.h
+        # src/InOneWeekend/sphere.h
         src/InOneWeekend/vec3.h
 )
 
