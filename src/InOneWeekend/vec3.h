@@ -52,33 +52,34 @@ public:
     }
 };
 
-// Create alias for points
+// point3 is just an alias for vec3, but useful for geometric clarity in the code.
 using point3 = vec3;
 
-// Vec utils functions
+// Vector Utility Functions
+
 inline std::ostream &operator<<(std::ostream &out, const vec3 &v)
 {
-    return out << v.x() << ' ' << v.y() << ' ' << v.z();
+    return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
 
 inline vec3 operator+(const vec3 &u, const vec3 &v)
 {
-    return vec3(u.x() + v.x(), u.y() + v.y(), u.z() + v.z());
+    return vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
 }
 
 inline vec3 operator-(const vec3 &u, const vec3 &v)
 {
-    return vec3(u.x() - v.x(), u.y() - v.y(), u.z() - v.z());
+    return vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
 }
 
 inline vec3 operator*(const vec3 &u, const vec3 &v)
 {
-    return vec3(u.x() * v.x(), u.y() * v.y(), u.z() * v.z());
+    return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
 }
 
 inline vec3 operator*(double t, const vec3 &v)
 {
-    return vec3(t * v.x(), t * v.y(), t * v.z());
+    return vec3(t * v.e[0], t * v.e[1], t * v.e[2]);
 }
 
 inline vec3 operator*(const vec3 &v, double t)
@@ -94,15 +95,14 @@ inline vec3 operator/(const vec3 &v, double t)
 
 inline double dot(const vec3 &u, const vec3 &v)
 {
-    return u.e[0] * v.e[1] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
+    return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
 }
 
 inline vec3 cross(const vec3 &u, const vec3 &v)
 {
-    return vec3(
-        u.e[1] * v.e[2] - u.e[2] * v.e[1],
-        u.e[2] * v.e[0] - u.e[0] * v.e[2],
-        u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+    return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
+                u.e[2] * v.e[0] - u.e[0] * v.e[2],
+                u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
 inline vec3 unit_vector(const vec3 &v)
