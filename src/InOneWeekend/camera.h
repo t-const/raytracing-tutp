@@ -12,8 +12,10 @@
 #include <algorithm>
 #include <iomanip>
 #include <mutex>
+#include <numeric>
+#include <ranges>
 
-#define SAMPLE_OPTIMIZATION
+#define OPTIMIZATION_PARALLEL
 
 class camera
 {
@@ -41,23 +43,25 @@ public:
         std::cout << "P3\n"
                   << image_width << ' ' << image_height << "\n255\n";
 
-        // for (int j = 0; j < image_height; j++)
-        // {
-        //     std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-        //     for (int i = 0; i < image_width; i++)
-        //     {
-        //         color pixel_color(0,0,0);
-        //         for (int sample = 0; sample < samples_per_pixel; sample++) {
-        //             ray r = get_ray(i, j);
-        //             pixel_color += ray_color(r, max_depth, world);
-        //         }
-        //         write_color(std::cout, pixel_samples_scale * pixel_color);
-        //     }
-        // }
+#ifndef OPTIMIZATION_PARALLEL
 
-        // std::clog << "\rDone.                 \n";
+        for (int j = 0; j < image_height; j++)
+        {
+            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+            for (int i = 0; i < image_width; i++)
+            {
+                color pixel_color(0, 0, 0);
+                for (int sample = 0; sample < samples_per_pixel; sample++)
+                {
+                    ray r = get_ray(i, j);
+                    pixel_color += ray_color(r, max_depth, world);
+                }
+                write_color(std::cout, pixel_samples_scale * pixel_color);
+            }
+        }
 
-        ///////////////
+        std::clog << "\rDone.                 \n";
+#else
 
         const auto imageSize = image_width * image_height;
         std::vector<color> pixel_colors(imageSize);
@@ -66,8 +70,10 @@ public:
         std::vector<std::tuple<int, int>> pixels;
         pixels.reserve(image_width * image_height);
 
-        for (int j = 0; j < image_height; j++) {
-            for (int i = 0; i < image_width; i++) {
+        for (int j = 0; j < image_height; j++)
+        {
+            for (int i = 0; i < image_width; i++)
+            {
                 pixels.emplace_back(i, j);
             }
         }
@@ -75,51 +81,42 @@ public:
         std::mutex log_mutex;
 
         // Parallelize pixel color computation
-        std::for_each(std::execution::par, pixels.begin(), pixels.end(), [&](const auto& pixel) {
+        std::for_each(std::execution::par, pixels.begin(), pixels.end(), [&](const auto &pixel)
+                      {
             int i = std::get<0>(pixel);
             int j = std::get<1>(pixel);
 
-#ifndef SAMPLE_OPTIMIZATION
             color pixel_color(0, 0, 0);
             for (int sample = 0; sample < samples_per_pixel; sample++)
             {
                 ray r = get_ray(i, j);
                 pixel_color += ray_color(r, max_depth, world);
             }
-#else
-            // Parallelize the sample accumulation
-            color pixel_color = std::transform_reduce(
-                std::execution::par,
-                0, samples_per_pixel,
-                color(0, 0, 0), // Initial value
-                std::plus<>(),  // Reduction operation
-                [&](int) {      // Transformation operation
-                    ray r = get_ray(i, j);
-                    return ray_color(r, max_depth, world);
-                });
-#endif
 
             // Store the computed color in the buffer
             pixel_colors[j * image_width + i] = pixel_samples_scale * pixel_color;
 
-            // Increment the atomic counter
-            int current_count = ++pixels_added;
+            // // Increment the atomic counter
+            // int current_count = ++pixels_added;
 
-            // Log progress
-            {
-                std::scoped_lock lock(log_mutex);
-                std::clog << "\rAdded " << current_count << " pixels / " << (image_width * image_height) << " pixels" << std::flush;
-            }
+            // // Log progress
+            // {
+            //     std::scoped_lock lock(log_mutex);
+            //     std::clog << "\rAdded " << current_count << " pixels / " << (image_width * image_height) << " pixels" << std::flush;
+            // } 
         });
 
         // Write the colors to the file in order
-        for (int j = 0; j < image_height; j++) {
-            for (int i = 0; i < image_width; i++) {
+        for (int j = 0; j < image_height; j++)
+        {
+            for (int i = 0; i < image_width; i++)
+            {
                 write_color(std::cout, pixel_colors[j * image_width + i]);
             }
         }
+#endif
 
-         // Stop measuring time
+        // Stop measuring time
         auto end_time = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         // Display execution time

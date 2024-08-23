@@ -50,11 +50,11 @@ int main()
 
             std::shared_ptr<material> sphere_material;
 
-            if (choose_mat < 0.8) {
+            if (choose_mat < 0.75) {
                 // diffuse
                 auto albedo = color::random() * color::random();
                 sphere_material = std::make_shared<lambertian>(albedo);
-            } else if (choose_mat < 0.95) {
+            } else if (choose_mat < 0.90) {
                 // metal
                 auto albedo = color::random(0.5, 1);
                 auto fuzz = random_double(0, 0.5);
@@ -85,7 +85,7 @@ int main()
     camera cam;
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 360;
+    cam.image_width = 3840;
     cam.samples_per_pixel = 500;
     cam.max_depth = 50;
 
