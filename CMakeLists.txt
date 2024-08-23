@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21.0)
 
 project(RTWeekend LANGUAGES CXX)
 
-set( CMAKE_CXX_STANDARD 11 )
+set( CMAKE_CXX_STANDARD 23 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 set( CMAKE_CXX_EXTENSIONS OFF )
 
@@ -47,3 +47,5 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 add_executable(inOneWeekend ${EXTERNAL} ${SOURCE_ONE_WEEKEND})
+find_package(TBB REQUIRED)
+target_link_libraries(inOneWeekend PRIVATE TBB::tbb)
