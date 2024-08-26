@@ -22,13 +22,13 @@ int main()
     world.add(make_shared<sphere>(point3(0, -3000, 0), 3000, ground_material));
 
     int counter = 0;
-    const int iterCount = (22 * 22); // assuming this is the total number of iterations
+    const int iterCount = (30 * 30); // assuming this is the total number of iterations
 
     std::vector<std::pair<int, int>> positions;
-    positions.reserve(22 * 22);
+    positions.reserve(iterCount);
 
-    for (int a = -11; a < 11; ++a) {
-        for (int b = -11; b < 11; ++b) {
+    for (int a = -15; a < 15; ++a) {
+        for (int b = -15; b < 15; ++b) {
             positions.emplace_back(a, b);
         }
     }
@@ -40,9 +40,10 @@ int main()
         int a = pos.first;
         int b = pos.second;
         auto choose_mat = random_double();
-        point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
+        const auto radius = random_double(0.1, 0.3);
+        point3 center(a + 0.9 * random_double(), radius, b + 0.9 * random_double());
 
-        if ((center - point3(4, 0.2, 0)).length() > 0.9) {
+        if ((center - point3(4, radius, 0)).length() > 0.9) {
             {
                 std::scoped_lock lock(log_mutex);
                 std::clog << "\rGenerating world: iteration #" << std::to_string(++counter) << "/" << std::to_string(iterCount) << std::flush;
@@ -66,7 +67,7 @@ int main()
 
             {
                 std::scoped_lock lock(vector_mutex);
-                world.add(std::make_shared<sphere>(center, 0.2, sphere_material));
+                world.add(std::make_shared<sphere>(center, radius, sphere_material));
             }
         }
     });

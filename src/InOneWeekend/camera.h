@@ -16,6 +16,7 @@
 #include <ranges>
 
 #define OPTIMIZATION_PARALLEL
+#define LOGGING
 
 class camera
 {
@@ -96,14 +97,16 @@ public:
             // Store the computed color in the buffer
             pixel_colors[j * image_width + i] = pixel_samples_scale * pixel_color;
 
-            // // Increment the atomic counter
-            // int current_count = ++pixels_added;
+#ifdef LOGGING
+            // Increment the atomic counter
+            int current_count = ++pixels_added;
 
-            // // Log progress
-            // {
-            //     std::scoped_lock lock(log_mutex);
-            //     std::clog << "\rAdded " << current_count << " pixels / " << (image_width * image_height) << " pixels" << std::flush;
-            // } 
+            // Log progress
+            {
+                std::scoped_lock lock(log_mutex);
+                std::clog << "\rAdded " << current_count << " pixels / " << (image_width * image_height) << " pixels" << std::flush;
+            } 
+#endif
         });
 
         // Write the colors to the file in order
